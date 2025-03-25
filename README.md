@@ -39,7 +39,6 @@ Feeling overwhelmed by a never-ending to-do list and unsure where to start? This
 ## 👥 Credits
 
 - **Eisenhower Matrix**: Inspired by the productivity method attributed to Dwight D. Eisenhower.
-- **Streamlit**: For providing a simple and efficient framework to build the app.
 
 ## 🐝 Support
 
