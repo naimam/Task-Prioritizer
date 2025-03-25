@@ -12,7 +12,6 @@ def classify_task(urgency, importance):
     else:
         return "Eliminate"
 
-# Function to sort tasks based on priority and completion status. completed tasks are sorted to the bottom
 def sort_tasks(tasks_df):
     '''Sort tasks based on priority and completion status'''
     priority_order = {
@@ -27,11 +26,49 @@ def sort_tasks(tasks_df):
 def main():
     st.set_page_config(
         page_title="Task Prioritizer",
-        page_icon="",
+        page_icon="📝",
         initial_sidebar_state="auto",
         layout="centered"
     )
     st.title("Task Prioritizer")
+    st.markdown("""Do you often find yourself overwhelmed by a long list of tasks with no idea where to start?
+                This tool can help you manage your to-do list more effectively by prioritizing tasks based on urgency and importance.
+                Simply input your tasks, mark them as urgent or important, and let the Eisenhower Matrix do the rest!
+                Checkout the sidebar for more info.
+                """)
+    
+    with st.sidebar:
+        st.markdown(
+        """
+        ## **About**
+        
+
+        ### 🚀 **Key Features**:
+        - Input your tasks and mark them as **urgent** or **important**.
+        - Tasks are automatically categorized into four groups based on their priority.
+        - Stay organized by focusing on essential tasks and reducing time spent on less critical ones.
+
+        ### 📊 **What is the Eisenhower Matrix?**
+        The **Eisenhower Matrix** (or **Urgent-Important Matrix**) is a productivity tool that helps prioritize tasks by urgency and importance.
+
+        It divides tasks into four actionable categories:
+
+        1. ✅ **Do First** – Important & Urgent: Tasks that need **immediate** attention.
+        2. 📅 **Schedule** – Important but Not Urgent: Tasks to **plan** for later.
+        3. 🔁 **Delegate** – Not Important but Urgent: Tasks to **assign** to others.
+        4. ❌ **Eliminate** – Not Important & Not Urgent: Tasks to **remove**.
+
+        By using the **Eisenhower Matrix**, you can:
+        - Prioritize tasks effectively.
+        - Improve time management.
+        - Focus on what truly matters while minimizing distractions.
+        
+        For more information, check out the [Eisenhower Matrix](https://en.wikipedia.org/wiki/Time_management#The_Eisenhower_Method) on Wikipedia.
+        """,
+        unsafe_allow_html=True
+    )
+
+
 
     if "tasks" not in st.session_state:
         # Initialize with a default task
@@ -44,7 +81,6 @@ def main():
         }]
 
  
-
     # Task List Section
     st.subheader("Your Tasks")
 
@@ -200,6 +236,21 @@ def main():
 
     else:
         st.info("Add at least one non-empty task to display the Eisenhower Matrix.")
+
+
+      # Ko-fi link integration
+    st.markdown(""" 
+      <p style="display: flex; justify-content: center; margin: 20px;"> Consider supporting me by buying me a coffee ☕️ if you find this tool helpful: </p>
+
+        <div style="display: flex; justify-content: center; margin: 20px;">
+            <a href='https://ko-fi.com/R5R71CFRC2' target='_blank'>
+                <img height='36' style='border:0px;height:36px;' 
+                    src='https://storage.ko-fi.com/cdn/kofi5.png?v=6' 
+                    border='0' 
+                    alt='Buy Me a Coffee at ko-fi.com' />
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
 
 if __name__ == "__main__":
         main()
