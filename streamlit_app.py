@@ -50,7 +50,7 @@ def main():
                 "Importance": importance,
                 "Estimated Time": estimated_time,
                 "Category": category,
-                "Completed": False  # New field to track completion status
+                "Completed": False  
             })
             st.success("Task added successfully!")
             st.rerun()
