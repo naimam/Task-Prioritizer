@@ -31,73 +31,82 @@ def main():
     st.title("Task Prioritizer")
 
     if "tasks" not in st.session_state:
-        st.session_state.tasks = []
-
-    # Task Input Form
-    with st.form("task_form"):
-        task_name = st.text_input("Task Name", "")
-        urgency = st.checkbox("Is it urgent?")
-        importance = st.checkbox("Is it important?")
-        estimated_time = st.number_input("Estimated time to complete (in minutes)", min_value=1, step=1)
-
-        submit = st.form_submit_button("Add Task")
-
-        if submit and task_name:
-            category = classify_task(urgency, importance)
-            st.session_state.tasks.append({
-                "Task": task_name,
-                "Urgency": urgency,
-                "Importance": importance,
-                "Estimated Time": estimated_time,
-                "Category": category,
-                "Completed": False  
-            })
-            st.success("Task added successfully!")
-            st.rerun()
+        # Initialize with a default task
+        st.session_state.tasks = [{
+            "Task": "<Your task here>",
+            "Urgency": False,
+            "Importance": False,
+            "Estimated Time": 1,
+            "Category": classify_task(False, False),
+            "Completed": False
+        }]
 
     # Task List Section
     st.subheader("Your Tasks")
-    if st.session_state.tasks:
-        tasks_df = pd.DataFrame(st.session_state.tasks)
+    tasks_df = pd.DataFrame(st.session_state.tasks)
 
-        for idx, row in tasks_df.iterrows():
-            task_key = f"task_{idx}"
-            col1, col2, col3 = st.columns([6, 2, 2])
+    for idx, row in tasks_df.iterrows():
+        task_key = f"task_{idx}"
+        col1, col2, col3, col4 = st.columns([1, 5, 2, 1])
 
-            with col1:
-                task_display = f"~~{row['Task']}~~" if row["Completed"] else row["Task"]
-                st.markdown(task_display)
+        # Checkbox for completion
+        with col1:
+            completed = st.checkbox("", value=row["Completed"], key=f"complete_{idx}")
+            st.session_state.tasks[idx]["Completed"] = completed
 
-            with col2:
-                if st.button("Edit", key=f"edit_{idx}"):
-                    edited_task = st.text_input("Edit Task", value=row["Task"], key=f"edit_task_{idx}")
-                    edited_est_time = st.number_input("Estimated time (min)", value=row["Estimated Time"], min_value=1, step=1, key=f"edit_time_{idx}")
-                    urgency_edit = st.checkbox("Is it urgent?", value=row["Urgency"], key=f"edit_urgency_{idx}")
-                    importance_edit = st.checkbox("Is it important?", value=row["Importance"], key=f"edit_importance_{idx}")
-                    if st.button("Save Edit", key=f"save_{idx}"):
-                        st.session_state.tasks[idx]["Task"] = edited_task
-                        st.session_state.tasks[idx]["Urgency"] = urgency_edit
-                        st.session_state.tasks[idx]["Importance"] = importance_edit
-                        st.session_state.tasks[idx]["Estimated Time"] = edited_est_time
-                        st.session_state.tasks[idx]["Category"] = classify_task(urgency_edit, importance_edit)
-                        st.session_state.tasks[idx]["Completed"] = False  # Reset completion status after edit
-                        st.rerun()
+        # Editable task text
+        with col2:
+            if completed:
+                task_display = f"~~{row['Task']}~~"
+            else:
+                task_display = row["Task"]
+            new_task = st.text_input("", value=row["Task"], key=f"task_text_{idx}")
+            if new_task != row["Task"]:
+                st.session_state.tasks[idx]["Task"] = new_task
 
-            with col3:
-                if st.button("Delete", key=f"delete_{idx}"):
-                    del st.session_state.tasks[idx]
-                    st.rerun()
+        # Editable actions (estimated time, urgency, importance)
+        with col3:
+            new_est_time = st.number_input(
+                "Time (min)", value=row["Estimated Time"], min_value=1, step=1, key=f"time_{idx}"
+            )
+            new_urgency = st.checkbox("Urgent", value=row["Urgency"], key=f"urgency_{idx}")
+            new_importance = st.checkbox("Important", value=row["Importance"], key=f"importance_{idx}")
 
-        if st.button("Clear All Tasks"):
-            st.session_state.tasks = []
-            st.rerun()
-    else:
-        st.info("No tasks added yet. Use the form above to add tasks.")
+            # Update task details
+            if (
+                new_est_time != row["Estimated Time"]
+                or new_urgency != row["Urgency"]
+                or new_importance != row["Importance"]
+            ):
+                st.session_state.tasks[idx]["Estimated Time"] = new_est_time
+                st.session_state.tasks[idx]["Urgency"] = new_urgency
+                st.session_state.tasks[idx]["Importance"] = new_importance
+                st.session_state.tasks[idx]["Category"] = classify_task(new_urgency, new_importance)
+
+        # Delete button with trash can icon
+        with col4:
+            if st.button("🗑️", key=f"delete_{idx}"):
+                del st.session_state.tasks[idx]
+                st.rerun()
+
+    # Add Task Button
+    if st.button("Add Task"):
+        st.session_state.tasks.append({
+            "Task": "<Your task here>",
+            "Urgency": False,
+            "Importance": False,
+            "Estimated Time": 1,
+            "Category": classify_task(False, False),
+            "Completed": False
+        })
+        st.rerun()
 
     # Eisenhower Matrix Section
     st.subheader("Eisenhower Matrix")
     if st.session_state.tasks:
-        sorted_tasks = sort_tasks(pd.DataFrame(st.session_state.tasks))
+        # Filter out completed tasks
+        active_tasks = [task for task in st.session_state.tasks if not task["Completed"]]
+        sorted_tasks = sort_tasks(pd.DataFrame(active_tasks))
 
         # Create empty lists for each category
         do_first = sorted_tasks[sorted_tasks["Category"] == "Do First"]
